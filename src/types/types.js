@@ -6,10 +6,6 @@ export const types = {
 }
 
 
-
-
-
-
 export const typesAuth = {
     login: '[Auth] login',
     logout: '[Auth] logout',

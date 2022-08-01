@@ -1,20 +1,46 @@
-import React from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Counter from '../components/Counter';
-import Home from '../components/Home';
 import Login from '../components/Login';
-import NavBar from '../components/NavBar';
+import { AuthContext } from '../context/authContext';
+import { authReducers } from '../reducers/authReducers';
+import DashboardRouter from './DashboardRouter';
+import PrivateRouter from './PrivateRouter';
+import PublicRouter from './PublicRouter';
+
+const init = () => {
+    return JSON.parse(localStorage.getItem('user')) || { logged: false }
+}
 
 const AppRouter = () => {
+
+    const [user, dispatch] = useReducer(authReducers,{}, init)
+
+    useEffect(() => {
+        if (!user) return
+        localStorage.setItem('user', JSON.stringify(user))
+    }, [user])
+
     return (
-        <BrowserRouter>
-        <NavBar/>
+        <AuthContext.Provider value={{user, dispatch}}>
+            <BrowserRouter>
                 <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/counter" element={<Counter />} />
-                <Route path="/login" element={<Login />} />
+                               
+                    <Route path="/login" element={
+                                                <PublicRouter>
+                                                        <Login />
+                                                </PublicRouter>
+                                                 } />
+
+
+                    <Route path="/*" element={
+                                            <PrivateRouter>
+                                                        <DashboardRouter />
+                                            </PrivateRouter>
+                                        } />
                 </Routes>
-        </BrowserRouter>
+            </BrowserRouter>
+        </AuthContext.Provider>
+
     );
 };
 
